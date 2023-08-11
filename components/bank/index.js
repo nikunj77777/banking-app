@@ -5,7 +5,7 @@ const JWTMiddleware = require('../../middleware/Authentication')
 
 bankRouter.use(JWTMiddleware.verifyAdminWithCookie)
 
-bankRouter.get('/', getAllBanks)
+bankRouter.get('/', JWTMiddleware.verifyAdminWithHeader,getAllBanks)
 bankRouter.get('/:id', getBankById)
 bankRouter.post('/', createBank)
 bankRouter.put('/:id', updateBank)

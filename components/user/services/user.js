@@ -1,53 +1,76 @@
 const { NotFound } = require("../../../error")
+const bcrypt = require('bcrypt');
 
-class User{
+class User {
     static userId = 0
-    static allUsers =[]
-    constructor(fullName, age, gender,password,isAdmin){
+    static allUsers = []
+    constructor(fullName, age, gender, password, isAdmin) {
         this.Id = User.userId++
         this.fullName = fullName
         this.age = age
         this.gender = gender
-        this.isAdmin=isAdmin
-        this.password=password
+        this.isAdmin = isAdmin
+        this.password = password
         this.accounts = []
     }
-    static createAdmin(fullName, age, gender,password){
+    static async createAdmin(fullName, age, gender, password) {
         try {
-            let userObj = new User(fullName, age, gender,password,true)
+            let hash = User.hashPassword(password)
+            let userObj = new User(fullName, age, gender, password, true)
+            userObj.password = await hash
             User.allUsers.push(userObj)
             return userObj
-        } 
+        }
         catch (error) {
             throw error
         }
     }
-    static createUser(fullName,age,gender,password){
+    static async createUser(fullName, age, gender, password) {
         try {
-            let userObj = new User(fullName, age, gender,password,false)
+            let hash = User.hashPassword(password)
+            let userObj = new User(fullName, age, gender, password, false)
+            userObj.password = await hash
             User.allUsers.push(userObj)
             return userObj
         } catch (error) {
             throw error
         }
     }
-    getId(){
+
+    static hashPassword(password) {
+        try {
+            let hash = bcrypt.hash(password, 12)
+            return hash
+        } catch (error) {
+            throw error
+        }
+    }
+
+    static comparePassword(password, hash) {
+        try {
+            let cmp = bcrypt.compare(password, hash)
+            return cmp
+        } catch (error) {
+
+        }
+    }
+    getId() {
         return this.Id
     }
-    getAccount(){
+    getAccount() {
         return this.accounts
     }
-    static findUser(userId){
+    static findUser(userId) {
         try {
             for (let index = 0; index < User.allUsers.length; index++) {
-                if(userId == User.allUsers[index].Id){
+                if (userId == User.allUsers[index].Id) {
                     return index
                 }
             }
             throw new NotFound("User ID not found")
-        } 
+        }
         catch (error) {
-            throw error  
+            throw error
         }
     }
     static getUserById(userId) {
@@ -58,7 +81,7 @@ class User{
             throw error
         }
     }
-    static getAllUser(){
+    static getAllUser() {
         try {
             return User.allUsers
         } catch (error) {
@@ -86,9 +109,9 @@ class User{
             throw error
         }
     }
-    static deleteUser(userId){
+    static deleteUser(userId) {
         try {
-            if(typeof userId != "number"){
+            if (typeof userId != "number") {
                 throw new ValidationError("user ID not valid")
             }
             let indexOfUser = this.findUser(userId)

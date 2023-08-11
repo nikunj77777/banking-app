@@ -2,13 +2,12 @@ const Unauthorized = require("../../../error/UnAuthorizedError")
 const JWTMiddleware = require("../../../middleware/Authentication")
 const User = require("./user")
 
-const login = (userid, passwordd) => {
+const  login = async(userid, passwordd) => {
     try {
         let userIndex = User.findUser(userid)
-        if (!User.allUsers[userIndex].password == passwordd) {
+        if(!await User.comparePassword(passwordd,User.allUsers[userIndex].password)){
             throw new Unauthorized("Password Does not Match")
         }
-       
         return JWTMiddleware.sign(userid, User.allUsers[userIndex].isAdmin)
     } catch (error) {
         throw error

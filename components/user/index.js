@@ -14,7 +14,7 @@ const JWTMiddleware = require('../../middleware/Authentication')
 userRouter.post('/login',login)
 userRouter.post('/logout',logout)
 
-userRouter.post('/admin',JWTMiddleware.verifyAdminWithCookie, createAdmin)
+userRouter.post('/admin', createAdmin)
 userRouter.get('/',JWTMiddleware.verifyAdminWithCookie, getAllUser)
 userRouter.get('/:id',JWTMiddleware.verifyAdminWithCookie,getUserById)
 userRouter.post('/',JWTMiddleware.verifyAdminWithCookie,createUser)

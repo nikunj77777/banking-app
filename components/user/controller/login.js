@@ -3,7 +3,7 @@ const { login: loginAD } = require('../services/login')
 require('dotenv').config()
 const http = require('http-status-codes')
 
-const login = (req, resp, next) => {
+const login = async (req, resp, next) => {
     try {
         const { userid, password } = req.body
         if (typeof userid != "number") {
@@ -12,9 +12,9 @@ const login = (req, resp, next) => {
         if (typeof password != "string") {
             throw new ValidationError("Password is not Valid")
         }
-        const token = loginAD(userid, password)
+        const token = await loginAD(userid, password)
         resp.cookie(process.env.COOKIE_NAME_AUTH, token)
-        resp.status(http.StatusCodes.ACCEPTED).send(`${userid} Logged in Successfully`)
+        resp.status(http.StatusCodes.ACCEPTED).send({accesToken: token})
     } catch (error) {
         next(error)
     }

@@ -16,6 +16,6 @@ application.use(urlNotFound)
 
 
 application.listen(9000, () => {
-    User.createAdmin("Nikunj Gandhi",21,"Male","nikunj123")
+    // User.createAdmin("Nikunj Gandhi",21,"Male","nikunj123")
     console.log("started at 9000");
 })

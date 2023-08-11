@@ -1,5 +1,6 @@
 const jwt = require('jsonwebtoken')
 const Unauthorized = require('../error/UnAuthorizedError')
+const { NotFound } = require('../error')
 require('dotenv').config()
 
 class JWTMiddleware {
@@ -17,7 +18,8 @@ class JWTMiddleware {
     }
     static verify(token) {
         try {
-            return jwt.verify(token, process.env.SECRET_KEY_FOR_AUTH)
+            let payload = jwt.verify(token, process.env.SECRET_KEY_FOR_AUTH)
+            return payload
         }
         catch (error) {
             throw error
@@ -56,14 +58,35 @@ class JWTMiddleware {
             next(error)
         }
     }
-    static verifyUserId(req,resp,next){
+    static verifyUserId(req, resp, next) {
         try {
             let payload = JWTMiddleware.verifyWithCookie(req, resp, next)
-            if(payload.userid!=req.params.userid){
+            if (payload.userid != req.params.userid) {
                 throw new Unauthorized("Id doesnt match")
             }
         } catch (error) {
             next(error)
+        }
+    }
+    static verifyAdminWithHeader(req, resp, next) {
+        try {
+
+            const token = req.headers['authorization']
+            if (!token) {
+                throw new NotFound("Header not Found")
+            }
+           
+            let tokenl = token.slice(7)
+
+            let payload = JWTMiddleware.verify(tokenl)
+
+
+            if (!payload.isAdmin) {
+                throw new Unauthorized("Not an Admin")
+            }
+            next()
+        } catch (error) {
+
         }
     }
 }
