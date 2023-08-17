@@ -1,3 +1,5 @@
+const db = require("../../../models")
+
 class Bank {
     static bankId = 0
     static allBanks = []
@@ -6,14 +8,22 @@ class Bank {
         this.bankName = bankName
         this.accountsInBank = []
     }
-    static createBank(bankName) {
+    static async createBank(bankName) {
+        // try {
+        //     let bankObj = new Bank(bankName)
+        //     Bank.allBanks.push(bankObj)
+        //     return bankObj
+        // } catch (error) {
+        //     throw error
+        // }
         try {
             let bankObj = new Bank(bankName)
-            Bank.allBanks.push(bankObj)
-            return bankObj
+            let rowBank = await db.bank.create(bankObj)
+            return rowBank
         } catch (error) {
             throw error
         }
+
     }
     static getAllBanks() {
         try {
@@ -25,14 +35,16 @@ class Bank {
             throw error
         }
     }
-    static getBankById(bankId) {
-        try {
-            // console.log("in id")
-            let bankIndex = Bank.findBank(bankId)
-            return Bank.allBanks[bankIndex]
-        } catch (error) {
-            throw error
-        }
+    static async getBankById(bankId) {
+        // try {
+        //     // console.log("in id")
+        //     let bankIndex = Bank.findBank(bankId)
+        //     return Bank.allBanks[bankIndex]
+        // } catch (error) {
+        //     throw error
+        // }
+        let bank = await db.bank.findAll({include:db.account},{where: { id: bankId } })
+        return bank
     }
 
     updateBankName(newValue) {

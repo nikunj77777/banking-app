@@ -10,7 +10,6 @@ class JWTMiddleware {
     }
     static sign(userid, isAdmin) {
         try {
-
             return jwt.sign(JSON.stringify(new JWTMiddleware(userid, isAdmin)), process.env.SECRET_KEY_FOR_AUTH)
         } catch (error) {
             throw error

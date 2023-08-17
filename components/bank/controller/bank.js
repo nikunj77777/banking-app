@@ -4,38 +4,34 @@ const Bank = require("../services/bank")
 const http = require('http-status-codes')
 
 const getAllBanks = (req, resp,next) => {
-    // try {
-    //     let allBanks = Bank.getAllBanks()
-    //     resp.status(201).send(allBanks)
-    // } catch (error) {
-    //     next(error)
-    // }
+    try {
+        let allBanks = Bank.getAllBanks()
+        resp.status(201).send(allBanks)
+    } catch (error) {
+        next(error)
+    }
 
 }
-const createBank = (req, resp,next) => {
+const createBank = async (req, resp,next) => {
     try {
         const name = req.body.bankName
         if (typeof name != "string") {
-
             throw new ValidationError('Name not valid')
         }
-        const bankObj = Bank.createBank(name)
+        const bankObj = await Bank.createBank(name)
         resp.status(201).send(bankObj)
-
     } catch (error) {
         next(error)
     }
 }
-const getBankById = (req, resp,next) => {
+const getBankById = async(req, resp,next) => {
     try {
         let { id } = req.params
         id = parseInt(id)
-        // console.log("controller", id);
         if (typeof id != "number") {
             throw new ValidationError("Bank ID not Valid")
         }
-        let bankObj = Bank.getBankById(id)
-        // console.log(bankObj);
+        let bankObj = await Bank.getBankById(id)
         resp.status(http.StatusCodes.ACCEPTED).send(bankObj)
 
     } catch (error) {

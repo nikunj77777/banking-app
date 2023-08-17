@@ -1,5 +1,6 @@
 const { NotFound } = require("../../../error")
 const bcrypt = require('bcrypt');
+const db = require("../../../models")
 
 class User {
     static userId = 0
@@ -27,14 +28,21 @@ class User {
     }
     static async createUser(fullName, age, gender, password) {
         try {
-            let hash = User.hashPassword(password)
+            // let hash = User.hashPassword(password)
             let userObj = new User(fullName, age, gender, password, false)
-            userObj.password = await hash
-            User.allUsers.push(userObj)
-            return userObj
+            // userObj.password = await hash
+            let rowBank = await db.user.create(userObj)
+            return rowBank
         } catch (error) {
             throw error
         }
+        // try {
+        //     let bankObj = new Bank(bankName)
+        //     let rowBank = await db.bank.create(bankObj)
+        //     return rowBank
+        // } catch (error) {
+        //     throw error
+        // }
     }
 
     static hashPassword(password) {

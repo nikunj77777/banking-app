@@ -2,22 +2,31 @@ const { NotFound, ValidationError } = require("../../../error")
 const Bank = require("../../bank/services/bank")
 const PassBook = require("../../passbook/services/passbook")
 const User = require("../../user/services/user")
+const db = require("../../../models")
 
 class Account {
     static accountId = 0
-    constructor(balance) {
-        this.id = Account.accountId++
+    constructor(bankID,userID,balance) {
+        this.bankID=bankID
+        this.userID=userID
         this.balance = balance
         this.passBook = []
     }
-    static createAccount(userid, bankId, balance) {
+    static async createAccount(userId, bankId, balance) {
+        // try {
+        //     let accountObj = new Account(balance)
+        //     let indexOfBank = Bank.findBank(bankId)
+        //     let userIndex = User.findUser(userid)
+        //     Bank.allBanks[indexOfBank].accountsInBank.push(accountObj)
+        //     User.allUsers[userIndex].accounts.push(accountObj)
+        //     return accountObj
+        // } catch (error) {
+        //     throw error
+        // }
         try {
-            let accountObj = new Account(balance)
-            let indexOfBank = Bank.findBank(bankId)
-            let userIndex = User.findUser(userid)
-            Bank.allBanks[indexOfBank].accountsInBank.push(accountObj)
-            User.allUsers[userIndex].accounts.push(accountObj)
-            return accountObj
+            let accObj = new Account(bankId,userId,balance)
+            let rowBank = await db.account.create(accObj)
+            return rowBank
         } catch (error) {
             throw error
         }

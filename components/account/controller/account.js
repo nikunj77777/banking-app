@@ -2,7 +2,7 @@ const { ValidationError } = require("../../../error")
 const Account = require("../services/account")
 const http = require('http-status-codes')
 
-const createAccount = (req, resp, next) => {
+const createAccount = async(req, resp, next) => {
     try {
         let { userid } = req.params
         userid = parseInt(userid)
@@ -13,7 +13,7 @@ const createAccount = (req, resp, next) => {
         if (typeof bankid != "number") {
             throw new ValidationError("Balance is not Valid")
         }
-        const accountObj = Account.createAccount(userid, bankid, balance)
+        const accountObj = await Account.createAccount(userid, bankid, balance)
         resp.status(http.StatusCodes.ACCEPTED).send(accountObj)
     } catch (error) {
         next(error)
