@@ -7,8 +7,8 @@ const db = require("../../../models")
 class Account {
     static accountId = 0
     constructor(bankID,userID,balance) {
-        this.bankID=bankID
-        this.userID=userID
+        this.bankId=bankID
+        this.userId=userID
         this.balance = balance
         this.passBook = []
     }

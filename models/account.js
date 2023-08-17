@@ -15,14 +15,14 @@ module.exports = (sequelize, DataTypes) => {
     }
   }
   account.init({
-    bankID: {
+    bankId: {
       type: DataTypes.INTEGER,
       references: {
         model: 'bank',
         key: 'id',
       },
     },
-    userID: {
+    userId: {
       type: DataTypes.INTEGER,
       references: {
         model: 'user',
