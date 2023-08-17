@@ -4,12 +4,12 @@ const Bank = require("../services/bank")
 const http = require('http-status-codes')
 
 const getAllBanks = (req, resp,next) => {
-    try {
-        let allBanks = Bank.getAllBanks()
-        resp.status(201).send(allBanks)
-    } catch (error) {
-        next(error)
-    }
+    // try {
+    //     let allBanks = Bank.getAllBanks()
+    //     resp.status(201).send(allBanks)
+    // } catch (error) {
+    //     next(error)
+    // }
 
 }
 const createBank = (req, resp,next) => {
