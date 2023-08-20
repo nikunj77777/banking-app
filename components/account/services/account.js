@@ -31,33 +31,47 @@ class Account {
             throw error
         }
     }
-    static getAllAccount(userid) {
-        let userIndex = User.findUser(userid)
-        return User.allUsers[userIndex].accounts
-    }
-    static findAccount(userID, accountId) {
-
+    static async getAllAccount(userid) {
+        // let userIndex = User.findUser(userid)
+        // return User.allUsers[userIndex].accounts
         try {
-            let indexOfUser = User.findUser(userID)
-            for (let index = 0; index < User.allUsers[indexOfUser].accounts.length; index++) {
-                if (accountId == User.allUsers[indexOfUser].accounts[index].id) {
-                    return index
-                }
-            }
-            throw new NotFound("Account ID not Found")
+            let accounts = await db.account.findAll({where: { userId: userid } })
+            return accounts
         } catch (error) {
             throw error
         }
     }
-    static updateAccount(userID, accountID, parameter, newValue) {
+    static async getAccountById(userid,accountid) {
+        // let userIndex = User.findUser(userid)
+        // return User.allUsers[userIndex].accounts
         try {
-            let indexOfUser = User.findUser(userID)
-            let indexOfAccount = Account.findAccount(userID, accountID)
+            let accounts = await db.account.findAll({where: { userId: userid ,id:accountid} })
+            return accounts
+        } catch (error) {
+            throw error
+        }
+    }
+    // static findAccount(userID, accountId) {
+
+    //     try {
+    //         let indexOfUser = User.findUser(userID)
+    //         for (let index = 0; index < User.allUsers[indexOfUser].accounts.length; index++) {
+    //             if (accountId == User.allUsers[indexOfUser].accounts[index].id) {
+    //                 return index
+    //             }
+    //         }
+    //         throw new NotFound("Account ID not Found")
+    //     } catch (error) {
+    //         throw error
+    //     }
+    // }
+    static async updateAccount(userID, accountID, parameter, newValue) {
+        try {
+            let account
             switch (parameter) {
                 case "balance":
-                    User.allUsers[indexOfUser].accounts[indexOfAccount].balance = newValue
-                    // Bank.allBanks[indexOfBank].accountsInBank[indexOfAccount].balance= newValue
-                    return User.allUsers[indexOfUser].accounts
+                    account = await db.account.update({balance :newValue},{where:{id:accountID,userId:userID}})
+                    return account
                 default:
                     throw new ValidationError("not a valid parameter")
             }
@@ -65,16 +79,32 @@ class Account {
             throw error
         }
     }
-    static deleteAccount(userID, bankID, accountID) {
-        let indexOfUser = User.findUser(userID)
-        let indexOfAccount = Account.findAccount(userID, accountID)
-        let indexOfBank = Bank.findBank(bankID)
+    static async deleteAccount(userID, bankID, accountID) {
+        // let indexOfUser = User.findUser(userID)
+        // let indexOfAccount = Account.findAccount(userID, accountID)
+        // let indexOfBank = Bank.findBank(bankID)
 
-        User.allUsers[indexOfUser].accounts.splice(indexOfAccount, 1)
-        Bank.allBanks[indexOfBank].accountsInBank.splice(indexOfAccount, 1)
-
-        return "deleted successfully"
+        // User.allUsers[indexOfUser].accounts.splice(indexOfAccount, 1)
+        // Bank.allBanks[indexOfBank].accountsInBank.splice(indexOfAccount, 1)
+        try {
+            let account = await db.account.destroy({
+                where: { id: accountID,userId:userID,bankId:bankID }
+            })
+            return "Succcesfully Deleted"
+        } catch (error) {
+            return error 
+        }
+        
     }
+
+
+
+
+
+
+
+    
+
     static deposit(userID, accountID, amount) {
         try {
             let indexOfUser = User.findUser(userID)

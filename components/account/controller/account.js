@@ -21,50 +21,68 @@ const createAccount = async(req, resp, next) => {
 
 }
 
-const getAllAccount = (req, resp, next) => {
+const getAllAccount = async (req, resp, next) => {
     try {
         let { userid } = req.params
         userid = parseInt(userid)
         if (typeof userid != "number") {
             throw new ValidationError("Balance is not Valid")
         }
-        let allAccount = Account.getAllAccount(userid)
+        let allAccount = await Account.getAllAccount(userid)
         resp.status(201).send(allAccount)
     } catch (error) {
         next(error)
     }
 }
 
-const updateAccount = (req, resp, next) => {
+const getAccountById = async (req, resp, next) => {
     try {
-        let { userid } = req.params
+        let { userid ,id } = req.params
         userid = parseInt(userid)
-        let { accountid, parameter, newValue } = req.body
-        if (typeof accountid != "number") {
+        id = parseInt(id)
+        if (typeof userid != "number") {
+            throw new ValidationError("Balance is not Valid")
+        }
+        if (typeof id != "number") {
+            throw new ValidationError("Balance is not Valid")
+        }
+        let allAccount = await Account.getAccountById(userid,id)
+        resp.status(201).send(allAccount)
+    } catch (error) {
+        next(error)
+    }
+}
+
+
+const updateAccount = async (req, resp, next) => {
+    try {
+        let { userid ,id} = req.params
+        userid = parseInt(userid)
+        id = parseInt(id)
+        let {parameter, newValue } = req.body
+        if (typeof id != "number") {
             throw new ValidationError("Account Id is not Valid")
         }
         if (typeof newValue != "number") {
             throw new ValidationError("Value is not Valid")
         }
-        const accountObj = Account.updateAccount(userid, accountid, parameter, newValue)
+        const accountObj = await Account.updateAccount(userid, id, parameter, newValue)
         resp.status(http.StatusCodes.ACCEPTED).send(accountObj)
     } catch (error) {
         next(error)
     }
 }
 
-const deleteAccount = (req, resp, next) => {
+const deleteAccount = async(req, resp, next) => {
     try {
-        let { userid } = req.params
+        let { userid ,id} = req.params
         userid = parseInt(userid)
-        let { bankid, accountid } = req.body
-        if (typeof accountid != "number") {
-            throw new ValidationError("Account Id is not Valid")
-        }
+        id = parseInt(id)
+        let { bankid } = req.body
         if (typeof bankid != "number") {
             throw new ValidationError("Bank Id is not Valid")
         }
-        const msg = Account.deleteAccount(userid, bankid, accountid)
+        const msg = await Account.deleteAccount(userid, bankid, id)
         resp.status(http.StatusCodes.ACCEPTED).send(msg)
     } catch (error) {
         next(error)
@@ -148,6 +166,7 @@ const getPassBook=(req,resp,next)=>{
 module.exports = {
     createAccount,
     getAllAccount,
+    getAccountById,
     updateAccount,
     deleteAccount,
     deposit,

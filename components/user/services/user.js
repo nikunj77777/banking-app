@@ -3,10 +3,10 @@ const bcrypt = require('bcrypt');
 const db = require("../../../models")
 
 class User {
-    static userId = 0
-    static allUsers = []
+    // static userId = 0
+    // static allUsers = []
     constructor(fullName, age, gender, password, isAdmin) {
-        this.Id = User.userId++
+        // this.Id = User.userId++
         this.fullName = fullName
         this.age = age
         this.gender = gender
@@ -14,6 +14,8 @@ class User {
         this.password = password
         this.accounts = []
     }
+
+
     static async createAdmin(fullName, age, gender, password) {
         try {
             // let hash = User.hashPassword(password)
@@ -38,6 +40,8 @@ class User {
         }
     }
 
+
+
     static hashPassword(password) {
         try {
             let hash = bcrypt.hash(password, 12)
@@ -46,7 +50,6 @@ class User {
             throw error
         }
     }
-
     static comparePassword(password, hash) {
         try {
             let cmp = bcrypt.compare(password, hash)
@@ -55,25 +58,29 @@ class User {
 
         }
     }
+
+
+
+    
     getId() {
         return this.Id
     }
     getAccount() {
         return this.accounts
     }
-    static findUser(userId) {
-        try {
-            for (let index = 0; index < User.allUsers.length; index++) {
-                if (userId == User.allUsers[index].Id) {
-                    return index
-                }
-            }
-            throw new NotFound("User ID not found")
-        }
-        catch (error) {
-            throw error
-        }
-    }
+    // static findUser(userId) {
+    //     try {
+    //         for (let index = 0; index < User.allUsers.length; index++) {
+    //             if (userId == User.allUsers[index].Id) {
+    //                 return index
+    //             }
+    //         }
+    //         throw new NotFound("User ID not found")
+    //     }
+    //     catch (error) {
+    //         throw error
+    //     }
+    // }
     static async getUserById(userId) {
         // try {
         //     let userIndex = User.findUser(userId)
