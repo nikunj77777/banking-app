@@ -1,4 +1,5 @@
 const { ValidationError } = require("../../../error")
+const Bank = require("../../bank/services/bank")
 const User = require("../services/user")
 const http = require('http-status-codes')
 
@@ -25,7 +26,6 @@ const createUser = async (req, resp, next) => {
         next(error)
     }
 }
-
 const createAdmin = async (req, resp, next) => {
     try {
         const { fullName, age, gender, password } = req.body
@@ -47,24 +47,24 @@ const createAdmin = async (req, resp, next) => {
         next(error)
     }
 }
-
-const getAllUser = (req, resp, next) => {
-    resp.status(http.StatusCodes.ACCEPTED).send(User.allUsers)
+const getAllUser = async (req, resp, next) => {
+    let allUsers= await User.getAllUser()
+    resp.status(http.StatusCodes.ACCEPTED).send(allUsers)
 }
-const getUserById = (req, resp, next) => {
+const getUserById = async(req, resp, next) => {
     try {
         let { id } = req.params
         id = parseInt(id)
         if (typeof id != "number") {
             throw new ValidationError("ID is not Valid")
         }
-        let userObj = User.getUserById(id)
+        let userObj = await User.getUserById(id)
         resp.status(http.StatusCodes.ACCEPTED).send(userObj)
     } catch (error) {
         next(error)
     }
 }
-const updateUser = (req, resp, next) => {
+const updateUser = async(req, resp, next) => {
     try {
         let { id } = req.params
         id = parseInt(id)
@@ -75,13 +75,15 @@ const updateUser = (req, resp, next) => {
         if (typeof parameter != "string") {
             throw new ValidationError("Parameter is not Valid")
         }
-        let userObj = User.updateUser(id, parameter, newValue)
+        let userObj = await User.updateUser(id, parameter, newValue)
         resp.status(http.StatusCodes.ACCEPTED).send(userObj)
     } catch (error) {
         next(error)
     }
 }
-const deleteUser = (req, resp, next) => {
+
+
+const deleteUser = async(req, resp, next) => {
     try {
         let { id } = req.params
         id = parseInt(id)
@@ -90,7 +92,7 @@ const deleteUser = (req, resp, next) => {
                 message: "Validation Error "
             })
         }
-        let msg = User.deleteUser(id)
+        let msg = await User.deleteUser(id)
         resp.status(http.StatusCodes.OK).send(msg)
     } catch (error) {
         next(error)

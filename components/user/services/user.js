@@ -16,11 +16,11 @@ class User {
     }
     static async createAdmin(fullName, age, gender, password) {
         try {
-            let hash = User.hashPassword(password)
+            // let hash = User.hashPassword(password)
             let userObj = new User(fullName, age, gender, password, true)
-            userObj.password = await hash
-            User.allUsers.push(userObj)
-            return userObj
+            // userObj.password = await hash
+            let rowBank = await db.user.create(userObj)
+            return rowBank
         }
         catch (error) {
             throw error
@@ -36,13 +36,6 @@ class User {
         } catch (error) {
             throw error
         }
-        // try {
-        //     let bankObj = new Bank(bankName)
-        //     let rowBank = await db.bank.create(bankObj)
-        //     return rowBank
-        // } catch (error) {
-        //     throw error
-        // }
     }
 
     static hashPassword(password) {
@@ -81,34 +74,47 @@ class User {
             throw error
         }
     }
-    static getUserById(userId) {
+    static async getUserById(userId) {
+        // try {
+        //     let userIndex = User.findUser(userId)
+        //     return User.allUsers[userIndex]
+        // } catch (error) {
+        //     throw error
+        // }
         try {
-            let userIndex = User.findUser(userId)
-            return User.allUsers[userIndex]
+            let user = await db.user.findOne({where: { id: userId } },{include: db.account})
+            return user
         } catch (error) {
             throw error
         }
     }
-    static getAllUser() {
+    static async getAllUser() {
+        // try {
+        //     return User.allUsers
+        // } catch (error) {
+        //     return error
+        // }
+
         try {
-            return User.allUsers
+            let user = await db.user.findAll({include:db.account})
+            return user
         } catch (error) {
-            return error
+            throw error
         }
     }
-    static updateUser(ID, parameter, newValue) {
+    static async updateUser(ID, parameter, newValue) {
         try {
-            let indexOfUser = User.findUser(ID)
+            let user
             switch (parameter) {
                 case "fullName":
-                    User.allUsers[indexOfUser].fullName = newValue
-                    return User.allUsers[indexOfUser]
+                    user = await db.user.update({fullName:newValue},{where:{id:ID}})
+                    return user
                 case "gender":
-                    User.allUsers[indexOfUser].gender = newValue
-                    return User.allUsers[indexOfUser]
+                    user = await db.user.update({gender:newValue},{where:{id:ID}})
+                    return user
                 case "age":
-                    User.allUsers[indexOfUser].age = newValue
-                    return User.allUsers[indexOfUser]
+                    user = await db.user.update({age:newValue},{where:{id:ID}})
+                    return user
                 default:
                     throw new ValidationError("Not a Valid Parameter")
             }
@@ -117,16 +123,28 @@ class User {
             throw error
         }
     }
-    static deleteUser(userId) {
+    static async deleteUser(userId) {
+        // try {
+        //     if (typeof userId != "number") {
+        //         throw new ValidationError("user ID not valid")
+        //     }
+        //     let indexOfUser = this.findUser(userId)
+        //     User.allUsers.splice(indexOfUser, 1)
+        //     return "deleted succesfully"
+        // } catch (error) {
+        //     return error
+        // }
         try {
-            if (typeof userId != "number") {
-                throw new ValidationError("user ID not valid")
+            try {
+                let user = await db.user.destroy({
+                    where: { id: userId }
+                })
+                return "Succcesfully Deleted"
+            } catch (error) {
+                return error 
             }
-            let indexOfUser = this.findUser(userId)
-            User.allUsers.splice(indexOfUser, 1)
-            return "deleted succesfully"
         } catch (error) {
-            return error
+            
         }
     }
 }
