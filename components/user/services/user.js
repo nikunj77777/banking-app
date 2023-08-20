@@ -3,8 +3,6 @@ const bcrypt = require('bcrypt');
 const db = require("../../../models")
 
 class User {
-    // static userId = 0
-    // static allUsers = []
     constructor(fullName, age, gender, password, isAdmin) {
         // this.Id = User.userId++
         this.fullName = fullName
@@ -14,8 +12,6 @@ class User {
         this.password = password
         this.accounts = []
     }
-
-
     static async createAdmin(fullName, age, gender, password) {
         try {
             // let hash = User.hashPassword(password)
@@ -39,9 +35,6 @@ class User {
             throw error
         }
     }
-
-
-
     static hashPassword(password) {
         try {
             let hash = bcrypt.hash(password, 12)
@@ -58,29 +51,6 @@ class User {
 
         }
     }
-
-
-
-    
-    getId() {
-        return this.Id
-    }
-    getAccount() {
-        return this.accounts
-    }
-    // static findUser(userId) {
-    //     try {
-    //         for (let index = 0; index < User.allUsers.length; index++) {
-    //             if (userId == User.allUsers[index].Id) {
-    //                 return index
-    //             }
-    //         }
-    //         throw new NotFound("User ID not found")
-    //     }
-    //     catch (error) {
-    //         throw error
-    //     }
-    // }
     static async getUserById(userId) {
         // try {
         //     let userIndex = User.findUser(userId)
@@ -89,7 +59,10 @@ class User {
         //     throw error
         // }
         try {
-            let user = await db.user.findOne({where: { id: userId } },{include: db.account})
+            let user = await db.user.findOne({include:{
+                model: db.account,
+                include: db.passbook
+            },where: { id: userId } })
             return user
         } catch (error) {
             throw error
@@ -103,7 +76,10 @@ class User {
         // }
 
         try {
-            let user = await db.user.findAll({include:db.account})
+            let user = await db.user.findAll({include:{
+                model: db.account,
+                include: db.passbook
+            }})
             return user
         } catch (error) {
             throw error

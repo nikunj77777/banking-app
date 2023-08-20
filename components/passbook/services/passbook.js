@@ -2,7 +2,8 @@ const Account = require("../../account/services/account")
 const User = require("../../user/services/user")
 
 class PassBook{
-    constructor(date, status, amount, balance){
+    constructor(accountId,date, status, amount, balance){
+        this.accountId=accountId
         this.date = date
         this.status = status
         this.amount = amount

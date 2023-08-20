@@ -35,7 +35,10 @@ class Bank {
         //     throw error
         // }
         try {
-            let bank = await db.bank.findAll({include:db.account})
+            let bank = await db.bank.findAll({include:{
+                model: db.account,
+                include: db.passbook
+            }})
             return bank
         } catch (error) {
             throw error
@@ -50,18 +53,15 @@ class Bank {
         //     throw error
         // }
         try {
-            let bank = await db.bank.findOne({where: { id: bankId } },{include: db.account})
-            console.log(bank)
+            let bank = await db.bank.findOne({include: {
+                model: db.account,
+                include: db.passbook
+            },where: { id: bankId } })
             return bank
         } catch (error) {
             throw error
         }
     }
-
-    // updateBankName(newValue) {
-    //     return this.bankName = newValue
-    // }
-    
     static async updateBank(bankId, newValue) {
         // try {
         //     let indexOfBank = Bank.findBank(bankId)
@@ -78,19 +78,6 @@ class Bank {
             throw error
         }
     }
-    // static findBank(bankID) {
-    //     try {
-    //         for (let index = 0; index < Bank.allBanks.length; index++) {
-    //             if (bankID == Bank.allBanks[index].bankId) {
-    //                 return index
-    //             }
-    //         }
-    //         throw new NotFound("bank ID not found")
-    //     }
-    //     catch (error) {
-    //         throw error
-    //     }
-    // }
     static async deleteBank(bankId) {
         // try {
         //     let indexOfBank = Bank.findBank(bankId)
@@ -112,4 +99,3 @@ class Bank {
 }
 module.exports = Bank
 
-// SELECT "bank"."id", "bank"."bank_name" AS "bankName", "bank"."created_at" AS "createdAt", "bank"."updated_at" AS "updatedAt", "bank"."deleted_at" AS "deletedAt", "accounts"."id" AS "accounts.id", "accounts"."bank_id" AS "accounts.bankId", "accounts"."user_id" AS "accounts.userId", "accounts"."balance" AS "accounts.balance", "accounts"."created_at" AS "accounts.createdAt", "accounts"."updated_at" AS "accounts.updatedAt", "accounts"."deleted_at" AS "accounts.deletedAt" FROM "banks" AS "bank" LEFT OUTER JOIN "accounts" AS "accounts" ON "bank"."id" = "accounts"."bank_id" AND ("accounts"."deleted_at" IS NULL) WHERE ("bank"."deleted_at" IS NULL);

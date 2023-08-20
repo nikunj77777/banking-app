@@ -12,6 +12,7 @@ module.exports = (sequelize, DataTypes) => {
     static associate(models) {
       models.account.belongsTo(models.user)
       models.account.belongsTo(models.bank)
+      models.account.hasMany(models.passbook)
     }
   }
   account.init({

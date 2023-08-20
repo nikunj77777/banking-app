@@ -1,4 +1,3 @@
-
 const { ValidationError } = require("../../../error")
 const Bank = require("../services/bank")
 const http = require('http-status-codes')

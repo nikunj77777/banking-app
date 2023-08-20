@@ -81,8 +81,6 @@ const updateUser = async(req, resp, next) => {
         next(error)
     }
 }
-
-
 const deleteUser = async(req, resp, next) => {
     try {
         let { id } = req.params

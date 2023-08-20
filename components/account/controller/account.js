@@ -20,7 +20,6 @@ const createAccount = async(req, resp, next) => {
     }
 
 }
-
 const getAllAccount = async (req, resp, next) => {
     try {
         let { userid } = req.params
@@ -34,7 +33,6 @@ const getAllAccount = async (req, resp, next) => {
         next(error)
     }
 }
-
 const getAccountById = async (req, resp, next) => {
     try {
         let { userid ,id } = req.params
@@ -52,8 +50,6 @@ const getAccountById = async (req, resp, next) => {
         next(error)
     }
 }
-
-
 const updateAccount = async (req, resp, next) => {
     try {
         let { userid ,id} = req.params
@@ -72,7 +68,6 @@ const updateAccount = async (req, resp, next) => {
         next(error)
     }
 }
-
 const deleteAccount = async(req, resp, next) => {
     try {
         let { userid ,id} = req.params
@@ -88,8 +83,7 @@ const deleteAccount = async(req, resp, next) => {
         next(error)
     }
 }
-
-const deposit = (req, resp, next) => {
+const deposit = async(req, resp, next) => {
     try {
 
         let { userid, id } = req.params
@@ -102,14 +96,13 @@ const deposit = (req, resp, next) => {
         if (typeof amount != "number") {
             throw new ValidationError("Amount is not Valid")
         }
-        const balance = Account.deposit(userid, id, amount)
-        resp.status(http.StatusCodes.ACCEPTED).send({ balance })
+        const balance = await Account.deposit(userid, id, amount)
+        resp.status(http.StatusCodes.ACCEPTED).send( balance )
     } catch (error) {
         next(error)
     }
 }
-
-const withdraw = (req, resp, next) => {
+const withdraw = async(req, resp, next) => {
     try {
         let { userid, id } = req.params
         userid = parseInt(userid)
@@ -121,15 +114,14 @@ const withdraw = (req, resp, next) => {
         if (typeof amount != "number") {
             throw new ValidationError("Amount is not Valid")
         }
-        const balance = Account.withdraw(userid, id, amount)
+        const balance = await Account.withdraw(userid, id, amount)
         resp.status(http.StatusCodes.ACCEPTED).send({ balance })
 
     } catch (error) {
         next(error)
     }
 }
-
-const transfer = (req, resp, next) => {
+const transfer = async (req, resp, next) => {
     try {
         let { userid, id } = req.params
         userid = parseInt(userid)
@@ -141,13 +133,13 @@ const transfer = (req, resp, next) => {
         if (typeof amount != "number") {
             throw new ValidationError("Amount is not Valid")
         }
-        const recieverObj = Account.transfer(amount, id, userid, recieverID, recieverAccID)
+        const recieverObj = await Account.transfer(amount, id, userid, recieverID, recieverAccID)
         resp.status(http.StatusCodes.ACCEPTED).send({recieverObj})
     } catch (error) {
         next(error)
     }
 }
-const getPassBook=(req,resp,next)=>{
+const getPassBook=async (req,resp,next)=>{
     let{userid,id}=req.params
     userid=parseInt(userid)
     id=parseInt(id)
@@ -157,11 +149,9 @@ const getPassBook=(req,resp,next)=>{
     if (typeof id != "number") {
         throw new ValidationError("ACC ID is not Valid")
     }
-    let passbook = Account.getPassBook(userid,id)
+    let passbook = await Account.getPassBook(userid,id)
     resp.status(201).send(passbook)
 }
-
-
 
 module.exports = {
     createAccount,
