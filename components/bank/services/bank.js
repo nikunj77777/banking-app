@@ -1,4 +1,5 @@
 const db = require("../../../models")
+const { Op } = require("sequelize");
 
 class Bank {
     static bankId = 0
@@ -25,7 +26,7 @@ class Bank {
         }
 
     }
-    static async getAllBanks() {
+    static async getAllBanks(offset = 0, limit = 5) {
         // try {
         //     if (Bank.allBanks.length == 0) {
         //         throw new Error("Not Found")
@@ -35,10 +36,12 @@ class Bank {
         //     throw error
         // }
         try {
-            let bank = await db.bank.findAll({include:{
-                model: db.account,
-                include: db.passbook
-            }})
+            let bank = await db.bank.findAndCountAll({
+                limit: limit, offset: offset, include: {
+                    model: db.account,
+                    include: db.passbook
+                }
+            })
             return bank
         } catch (error) {
             throw error
@@ -53,10 +56,12 @@ class Bank {
         //     throw error
         // }
         try {
-            let bank = await db.bank.findOne({include: {
-                model: db.account,
-                include: db.passbook
-            },where: { id: bankId } })
+            let bank = await db.bank.findOne({
+                include: {
+                    model: db.account,
+                    include: db.passbook
+                }, where: { id: bankId }
+            })
             return bank
         } catch (error) {
             throw error
@@ -72,7 +77,7 @@ class Bank {
         // }
 
         try {
-            let bank = await db.bank.update({bankName   :newValue},{where:{id:bankId}})
+            let bank = await db.bank.update({ bankName: newValue }, { where: { id: bankId } })
             return bank
         } catch (error) {
             throw error
@@ -93,7 +98,7 @@ class Bank {
             })
             return "Succcesfully Deleted"
         } catch (error) {
-            return error 
+            return error
         }
     }
 }

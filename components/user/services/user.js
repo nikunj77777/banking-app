@@ -1,6 +1,7 @@
 const { NotFound } = require("../../../error")
 const bcrypt = require('bcrypt');
-const db = require("../../../models")
+const db = require("../../../models");
+const { Op } = require("sequelize");
 
 class User {
     constructor(fullName, age, gender, password, isAdmin) {
@@ -68,18 +69,25 @@ class User {
             throw error
         }
     }
-    static async getAllUser() {
-        // try {
-        //     return User.allUsers
-        // } catch (error) {
-        //     return error
-        // }
-
+    static async getAllUser(age,isAdmin,fullName,gender) {
         try {
-            let user = await db.user.findAll({include:{
+        let whereClause = {};
+        if (typeof age !== 'undefined') {
+            whereClause.age = { [Op.lte]: age };
+        }
+        if (typeof isAdmin !== 'undefined') {
+            whereClause.isAdmin = { [Op.eq]: isAdmin };
+        }
+        if(typeof fullName!='undefined'){
+            whereClause.fullName={[Op.eq]:fullName}
+        }
+        if(typeof gender !='undefined'){
+            whereClause.gender={[Op.eq]:gender}
+        }
+        let user = await db.user.findAll({include:{
                 model: db.account,
                 include: db.passbook
-            }})
+            },where:whereClause})
             return user
         } catch (error) {
             throw error

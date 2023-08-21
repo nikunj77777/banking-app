@@ -2,16 +2,30 @@ const { ValidationError } = require("../../../error")
 const Bank = require("../services/bank")
 const http = require('http-status-codes')
 
-const getAllBanks = async (req, resp,next) => {
+const getAllBanks = async (req, resp, next) => {
     try {
+        let { offset, limit } = req.query
+        if (offset && limit) {
+            offset = parseInt(offset)
+            limit = parseInt(limit)
+            if (typeof offset != "number" || offset<0) {
+                throw new ValidationError('Offset not valid')
+            }
+            if (typeof limit != "number" || limit<0) {
+                throw new ValidationError('Limit not valid')
+            }
+            let allBanks = await Bank.getAllBanks(offset, limit)
+            resp.status(201).send(allBanks)
+        }
         let allBanks = await Bank.getAllBanks()
         resp.status(201).send(allBanks)
+
     } catch (error) {
         next(error)
     }
 
 }
-const createBank = async (req, resp,next) => {
+const createBank = async (req, resp, next) => {
     try {
         const name = req.body.bankName
         if (typeof name != "string") {
@@ -23,7 +37,7 @@ const createBank = async (req, resp,next) => {
         next(error)
     }
 }
-const getBankById = async(req, resp,next) => {
+const getBankById = async (req, resp, next) => {
     try {
         let { id } = req.params
         id = parseInt(id)
@@ -37,7 +51,7 @@ const getBankById = async(req, resp,next) => {
     }
 
 }
-const updateBank = async (req, resp,next) => {
+const updateBank = async (req, resp, next) => {
     try {
         let { id } = req.params
         id = parseInt(id)
@@ -48,13 +62,13 @@ const updateBank = async (req, resp,next) => {
         if (typeof newValue != "string") {
             throw new ValidationError("Value is not Valid")
         }
-        let bankObj =await Bank.updateBank(id, newValue)
+        let bankObj = await Bank.updateBank(id, newValue)
         resp.status(http.StatusCodes.ACCEPTED).send(bankObj)
     } catch (error) {
         next(error)
     }
 }
-const deleteBank = async(req, resp,next) => {
+const deleteBank = async (req, resp, next) => {
     try {
         let { id } = req.params
         id = parseInt(id)

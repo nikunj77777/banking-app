@@ -48,8 +48,16 @@ const createAdmin = async (req, resp, next) => {
     }
 }
 const getAllUser = async (req, resp, next) => {
-    let allUsers= await User.getAllUser()
-    resp.status(http.StatusCodes.ACCEPTED).send(allUsers)
+    try {
+        let {age,isAdmin,fullName,gender}=req.query
+        // offset=parseInt(offset)
+        // limit=parseInt(limit)
+        age=parseInt(age)
+        let allUsers= await User.getAllUser(age,isAdmin,fullName,gender)
+        resp.status(http.StatusCodes.ACCEPTED).send(allUsers)
+    } catch (error) {
+        next(error)
+    }
 }
 const getUserById = async(req, resp, next) => {
     try {
