@@ -26,21 +26,19 @@ class Bank {
         }
 
     }
-    static async getAllBanks(offset = 0, limit = 5) {
-        // try {
-        //     if (Bank.allBanks.length == 0) {
-        //         throw new Error("Not Found")
-        //     }
-        //     return Bank.allBanks
-        // } catch (error) {
-        //     throw error
-        // }
+    static async getAllBanks(bankName,offset = 0, limit = 5) {
+     
         try {
+            console.log(typeof bankName)
+            let whereClause = {}
+            if (typeof bankName !== 'undefined') {
+                whereClause.bankName = { [Op.eq]: bankName };
+            }
             let bank = await db.bank.findAndCountAll({
                 limit: limit, offset: offset, include: {
                     model: db.account,
                     include: db.passbook
-                }
+                }, where: whereClause
             })
             return bank
         } catch (error) {

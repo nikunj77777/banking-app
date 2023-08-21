@@ -3,6 +3,7 @@ const Bank = require("../../bank/services/bank")
 const PassBook = require("../../passbook/services/passbook")
 const User = require("../../user/services/user")
 const db = require("../../../models")
+const { Op } = require("sequelize")
 
 class Account {
     static accountId = 0
@@ -87,6 +88,13 @@ class Account {
             let accounts = await db.account.findOne({ where: { userId: userID, id: accountID } })
             let newAmount = (accounts.balance) + amount
             let account = await db.account.update({ balance: newAmount }, { where: { id: accountID, userId: userID } })
+            // const today = new Date();
+            // const yyyy = today.getFullYear();
+            // let mm = today.getMonth() + 1;
+            // let dd = today.getDate();
+            // if (dd < 10) dd = '0' + dd;
+            // if (mm < 10) mm = '0' + mm;
+            // const formattedToday = dd + '/' + mm + '/' + yyyy;
             let passBookObj = new PassBook(accountID, new Date(), "credited", amount, newAmount)
             let passBook = await db.passbook.create(passBookObj)
             return passBook
@@ -145,24 +153,48 @@ class Account {
             throw error
         }
     }
-    static async getPassBook(userID, accountID) {
+    // static async getPassBook(userID, accountID,fromDate,toDate,offset=0,limit=10) {
+    //     try {
+    //         const whereClause = {
+    //             userId: userID,
+    //             id: accountID
+    //         }
+            
+    //         if (fromDate && toDate) {
+    //             whereClause.date = {
+    //                 [Op.between]: [fromDate, toDate]
+    //             }
+    //         }
+    //         let passbook = await db.passbook.findAll({offset:offset,limit:limit, include: { model: db.account, where: whereClause } })
+    //         return passbook;
+    //     } catch (error) {
+    //         throw error
+    //     }
+    // }
+    static async getPassBook( accountID, fromDate, toDate, offset = 0, limit = 10) {
         try {
-            // let indexOfUser = User.findUser(userID)
-            // let indexOfAccount = Account.findAccount(userID, accountID)
-            // return User.allUsers[indexOfUser].accounts[indexOfAccount].passBook
-
-
-            // let pasbook = await db.passbook.findAll({where:{accountId:accountID}})
-            // return pasbook
-
-            let passbook = await db.passbook.findAll({ include: { model: db.account, where: { userId: userID, id: accountID } } });
-
+            const whereClause = {
+                accountId: accountID
+            };
+    
+            if (fromDate && toDate) {
+                whereClause.date= {
+                    [Op.between]: [fromDate, toDate]
+                };
+            }
+    
+            const passbook = await db.passbook.findAll({
+                offset: offset,
+                limit: limit,
+                where: whereClause
+            });
+    
             return passbook;
-
         } catch (error) {
-            throw error
+            throw error;
         }
     }
+    
 }
 module.exports = Account
 

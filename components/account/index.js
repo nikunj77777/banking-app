@@ -5,7 +5,7 @@ const accountRouter = express.Router({ mergeParams: true })
 const { createAccount,getAllAccount,getAccountById,updateAccount,deleteAccount,deposit,withdraw,transfer, getPassBook} = require('./controller/account')
 const passbookRouter = require('../passbook')
 const JWTMiddleware = require('../../middleware/Authentication')
-accountRouter.use(JWTMiddleware.verifyUserWithCookie)
+// accountRouter.use(JWTMiddleware.verifyUserWithCookie)
 // accountRouter.use(JWTMiddleware.verifyUserId)
 
 accountRouter.post('/', createAccount)

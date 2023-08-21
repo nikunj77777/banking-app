@@ -143,13 +143,14 @@ const getPassBook=async (req,resp,next)=>{
     let{userid,id}=req.params
     userid=parseInt(userid)
     id=parseInt(id)
+    let{fromDate,toDate,offset,limit}=req.query
     if (typeof userid != "number") {
         throw new ValidationError("USERID is not Valid")
     }
     if (typeof id != "number") {
         throw new ValidationError("ACC ID is not Valid")
     }
-    let passbook = await Account.getPassBook(userid,id)
+    let passbook = await Account.getPassBook(id,fromDate,toDate,offset,limit)
     resp.status(201).send(passbook)
 }
 

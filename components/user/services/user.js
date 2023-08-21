@@ -69,7 +69,7 @@ class User {
             throw error
         }
     }
-    static async getAllUser(age,isAdmin,fullName,gender) {
+    static async getAllUser(age,isAdmin,fullName,gender,offset=0,limit=5) {
         try {
         let whereClause = {};
         if (typeof age !== 'undefined') {
@@ -84,7 +84,7 @@ class User {
         if(typeof gender !='undefined'){
             whereClause.gender={[Op.eq]:gender}
         }
-        let user = await db.user.findAll({include:{
+        let user = await db.user.findAndCountAll({offset:offset,limit:limit,include:{
                 model: db.account,
                 include: db.passbook
             },where:whereClause})

@@ -4,7 +4,7 @@ const http = require('http-status-codes')
 
 const getAllBanks = async (req, resp, next) => {
     try {
-        let { offset, limit } = req.query
+        let { offset, limit,bankName } = req.query
         if (offset && limit) {
             offset = parseInt(offset)
             limit = parseInt(limit)
@@ -14,10 +14,16 @@ const getAllBanks = async (req, resp, next) => {
             if (typeof limit != "number" || limit<0) {
                 throw new ValidationError('Limit not valid')
             }
-            let allBanks = await Bank.getAllBanks(offset, limit)
+            if(typeof bankName!="string"){
+                throw new ValidationError('BankName not valid')
+            }
+            let allBanks = await Bank.getAllBanks(bankName,offset, limit)
             resp.status(201).send(allBanks)
         }
-        let allBanks = await Bank.getAllBanks()
+        if(typeof bankName!="string"){
+            throw new ValidationError('BankName not valid')
+        }
+        let allBanks = await Bank.getAllBanks(bankName)
         resp.status(201).send(allBanks)
 
     } catch (error) {
