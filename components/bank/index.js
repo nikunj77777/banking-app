@@ -3,7 +3,7 @@ const bankRouter = express()
 const { getAllBanks,getBankById,createBank,updateBank,deleteBank} = require('./controller/bank')
 const JWTMiddleware = require('../../middleware/Authentication')
 
-// bankRouter.use(JWTMiddleware.verifyAdminWithCookie)
+bankRouter.use(JWTMiddleware.verifyAdminWithCookie)
 
 // bankRouter.get('/', JWTMiddleware.verifyAdminWithHeader,getAllBanks)
 bankRouter.get('/',getAllBanks)

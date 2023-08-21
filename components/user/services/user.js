@@ -14,9 +14,9 @@ class User {
     }
     static async createAdmin(fullName, age, gender, password) {
         try {
-            // let hash = User.hashPassword(password)
+            let hash = User.hashPassword(password)
             let userObj = new User(fullName, age, gender, password, true)
-            // userObj.password = await hash
+            userObj.password = await hash
             let rowBank = await db.user.create(userObj)
             return rowBank
         }
