@@ -14,41 +14,38 @@ class Account {
         this.passBook = []
     }
     static async createAccount(userId, bankId, balance) {
-        // try {
-        //     let accountObj = new Account(balance)
-        //     let indexOfBank = Bank.findBank(bankId)
-        //     let userIndex = User.findUser(userid)
-        //     Bank.allBanks[indexOfBank].accountsInBank.push(accountObj)
-        //     User.allUsers[userIndex].accounts.push(accountObj)
-        //     return accountObj
-        // } catch (error) {
-        //     throw error
-        // }
+        let transaction = await db.sequelize.transaction()
         try {
             let accObj = new Account(bankId, userId, balance)
-            let rowBank = await db.account.create(accObj)
+            let rowBank = await db.account.create(accObj,{transaction:transaction})
+            transaction.commit()
             return rowBank
         } catch (error) {
+            transaction.rollback()
             throw error
         }
     }
     static async getAllAccount(userid) {
         // let userIndex = User.findUser(userid)
         // return User.allUsers[userIndex].accounts
+        let transaction = await db.sequelize.transaction()
         try {
-            let accounts = await db.account.findAll({ include: db.passbook, where: { userId: userid } })
+            let accounts = await db.account.findAll({ include: db.passbook, where: { userId: userid } ,  transaction: transaction })
+            transaction.commit()
             return accounts
         } catch (error) {
+            transaction.rollback()
             throw error
         }
     }
     static async getAccountById(userid, accountid) {
-        // let userIndex = User.findUser(userid)
-        // return User.allUsers[userIndex].accounts
+        let transaction = await db.sequelize.transaction()
         try {
-            let accounts = await db.account.findOne({ include: db.passbook }, { where: { userId: userid, id: accountid } })
+            let accounts = await db.account.findOne({ include: db.passbook }, { where: { userId: userid, id: accountid } ,  transaction: transaction } )
+            transaction.commit()
             return accounts
         } catch (error) {
+            transaction.rollback()
             throw error
         }
     }
@@ -67,134 +64,107 @@ class Account {
         }
     }
     static async deleteAccount(userID, bankID, accountID) {
-        // let indexOfUser = User.findUser(userID)
-        // let indexOfAccount = Account.findAccount(userID, accountID)
-        // let indexOfBank = Bank.findBank(bankID)
-
-        // User.allUsers[indexOfUser].accounts.splice(indexOfAccount, 1)
-        // Bank.allBanks[indexOfBank].accountsInBank.splice(indexOfAccount, 1)
+        let transaction = await db.sequelize.transaction()
         try {
             let account = await db.account.destroy({
-                where: { id: accountID, userId: userID, bankId: bankID }
+                where: { id: accountID, userId: userID, bankId: bankID }, transaction: transaction 
             })
+            transaction.commit()
             return "Succcesfully Deleted"
         } catch (error) {
+            transaction.rollback()
             return error
         }
 
     }
     static async deposit(userID, accountID, amount) {
+        let transaction = await db.sequelize.transaction()
         try {
-            let accounts = await db.account.findOne({ where: { userId: userID, id: accountID } })
-            let newAmount = (accounts.balance) + amount
-            let account = await db.account.update({ balance: newAmount }, { where: { id: accountID, userId: userID } })
-            // const today = new Date();
-            // const yyyy = today.getFullYear();
-            // let mm = today.getMonth() + 1;
-            // let dd = today.getDate();
-            // if (dd < 10) dd = '0' + dd;
-            // if (mm < 10) mm = '0' + mm;
-            // const formattedToday = dd + '/' + mm + '/' + yyyy;
-            let passBookObj = new PassBook(accountID, new Date(), "credited", amount, newAmount)
-            let passBook = await db.passbook.create(passBookObj)
+            let passBook = await Account.depositUtility(userID, accountID, amount, transaction) 
+            await transaction.commit();
             return passBook
 
+        } catch (error) {
+            await transaction.rollback() 
+            throw error
+        }
+    }
+    static async depositUtility(userID,accountID,amount,transaction){
+        try {
+            let accounts = await db.account.findOne({ where: { userId: userID, id: accountID } },
+                { transaction: transaction })
+            let newAmount = (accounts.balance) + amount
+            let account = await db.account.update({ balance: newAmount }, { where: { id: accountID, userId: userID } ,transaction: transaction})
+            let passBookObj = new PassBook(accountID, new Date(), "credited", amount, newAmount)
+            let passBook = await db.passbook.create(passBookObj, { transaction: transaction })
+            return passBook
+        } catch (error) {
+            throw error
+        }
+    }
+    static async withdrawUtility(userID, accountID, amount, transaction) {
+        try {
+            let accounts = await db.account.findOne({ where: { userId: userID, id: accountID } },
+                { transaction: transaction })
+            let newAmount = (accounts.balance) - amount
+            let account = await db.account.update({ balance: newAmount }, {
+                where: { id: accountID, userId: userID },
+                transaction: transaction
+            })
+            let passBookObj = new PassBook(accountID, new Date(), "debited", amount, newAmount)
+            let passBook = await db.passbook.create(passBookObj, { transaction: transaction })
+            return passBook
         } catch (error) {
             throw error
         }
     }
     static async withdraw(userID, accountID, amount) {
+        let transaction = await db.sequelize.transaction()
         try {
-            let accounts = await db.account.findOne({ where: { userId: userID, id: accountID } })
-            let newAmount = (accounts.balance) - amount
-            let account = await db.account.update({ balance: newAmount }, { where: { id: accountID, userId: userID } })
-            let passBookObj = new PassBook(accountID, new Date(), "debited", amount, newAmount)
-            let passBook = await db.passbook.create(passBookObj)
+            let passBook = await Account.withdrawUtility(userID, accountID, amount, transaction)
+            await transaction.commit();
             return passBook
         } catch (error) {
+            await transaction.rollback()
             throw error
         }
     }
-    static transfer(amount, fromAccountID, senderUserID, recieverUserID, recieverAccountID) {
-        // try {
-        //     let indexOfReceiver = User.findUser(recieverUserID)
-        //     let indexOfSender = User.findUser(senderUserID)
-        //     let reciever = User.allUsers[indexOfReceiver]
-        //     let sender = User.allUsers[indexOfSender]
-        //     let indexOfReceiverAccount = Account.findRecieverAccount(reciever, recieverAccountID)
-        //     let indexOfSenderAccount = Account.findRecieverAccount(sender, fromAccountID)
-        //     // console.log("Info down ")
-        //     // console.log(User.allUsers[indexOfSender].accounts[indexOfSenderAccount])
-        //     let senderAccount = User.allUsers[indexOfReceiver].accounts[indexOfReceiverAccount]
-        //     let receiverAccount = User.allUsers[indexOfSender].accounts[indexOfSenderAccount]
-        //     if (senderAccount.balance >= amount) {
-        //         senderAccount.balance -= amount;
-        //         let senderPassBookObj = new PassBook(new Date(), "debited", amount, senderAccount.balance);
-        //         senderAccount.passBook.push(senderPassBookObj);
-
-        //         receiverAccount.balance += amount;
-        //         let receiverPassBookObj = new PassBook(new Date(), "credited", amount, receiverAccount.balance);
-        //         receiverAccount.passBook.push(receiverPassBookObj);
-
-        //         return receiverAccount;
-        //     } else {
-        //         throw new Error("Insufficient balance for transfer");
-        //     }
-        //     // User.allUsers[indexOfSender].accounts[indexOfSenderAccount] .withdraw(senderUserID,fromAccountID,amount)
-        //     // reciever.accounts[indexOfReceiverAccount].deposit(recieverUserID,recieverAccountID,amount)
-        // } catch (error) {
-        //     throw error
-        // }
+    static async transfer(amount, fromAccountID, senderUserID, recieverUserID, recieverAccountID) {
+        const transaction = await db.sequelize.transaction();
         try {
-            Account.withdraw(senderUserID, fromAccountID, amount)
-            Account.deposit(recieverUserID, recieverAccountID, amount)
+            Account.withdrawUtility(senderUserID, fromAccountID, amount, transaction)
+            Account.depositUtility(recieverUserID, recieverAccountID, amount, transaction)
+            await transaction.commit();
             return "Transfer Done Successfully"
         } catch (error) {
+            await transaction.rollback();
             throw error
         }
     }
-    // static async getPassBook(userID, accountID,fromDate,toDate,offset=0,limit=10) {
-    //     try {
-    //         const whereClause = {
-    //             userId: userID,
-    //             id: accountID
-    //         }
-            
-    //         if (fromDate && toDate) {
-    //             whereClause.date = {
-    //                 [Op.between]: [fromDate, toDate]
-    //             }
-    //         }
-    //         let passbook = await db.passbook.findAll({offset:offset,limit:limit, include: { model: db.account, where: whereClause } })
-    //         return passbook;
-    //     } catch (error) {
-    //         throw error
-    //     }
-    // }
-    static async getPassBook( accountID, fromDate, toDate, offset = 0, limit = 10) {
+    static async getPassBook(accountID, fromDate, toDate, offset = 0, limit = 10) {
         try {
             const whereClause = {
                 accountId: accountID
             };
-    
+
             if (fromDate && toDate) {
-                whereClause.date= {
+                whereClause.date = {
                     [Op.between]: [fromDate, toDate]
                 };
             }
-    
+
             const passbook = await db.passbook.findAll({
                 offset: offset,
                 limit: limit,
                 where: whereClause
             });
-    
+
             return passbook;
         } catch (error) {
             throw error;
         }
     }
-    
+
 }
 module.exports = Account
 
